@@ -77,8 +77,12 @@ left join address on staff.address_id = address.address_id;
 select staff.staff_id, staff.first_name, staff.last_name, sum(payment.amount) as "total amount rung up"
 from staff
 left join payment on staff.staff_id = payment.staff_id
-group by staff_id;
-# having payment.payment_date = "%2005-08%"; - I get an error in syntax for this condition 
+group by staff_id
+having payment.payment_date = "2005-08-%% %%:%%:%%";
+
+#I get an error that payment.payment_date is an unknown column
+
+select payment_date from payment;
 
 I get an error from filtering by date
 
@@ -168,7 +172,7 @@ where film_id in
 	)
 );
 
-#7e - had trouble returning results
+#7e 
 select inventory.film_id, count(rental.rental_id) as "number of rents"
 FROM rental
 left join inventory on rental.inventory_id = inventory.inventory_id 
@@ -176,14 +180,43 @@ group by film_id
 order by count(rental.rental_id) desc;
 
 #7f
-select staff.store_id, sum(payment.amount)
+select staff.store_id, sum(payment.amount) as "total store amount"
 FROM payment
 left join staff on payment.staff_id = staff.staff_id
 group by staff.store_id;
 
+#7g
+select store_id, city, country from (store inner join address
+on store.address_id = address.address_id) 
+inner join city on (address.city_id = city.city_id)
+inner join country on (city.country_id = country.country_id);
+
+#7h
+select name, sum(amount) as "total revenue" from (payment inner join rental
+on payment.rental_id = rental.rental_id)
+inner join inventory on (rental.inventory_id = inventory.inventory_id)
+inner join film_category on (inventory.film_id = film_category.film_id)
+inner join category on (film_category.category_id = category.category_id)
+group by name
+order by sum(amount) desc limit 5;
+
+#8a
+create view top_genres as
+select name, sum(amount) as "total revenue" from (payment inner join rental
+on payment.rental_id = rental.rental_id)
+inner join inventory on (rental.inventory_id = inventory.inventory_id)
+inner join film_category on (inventory.film_id = film_category.film_id)
+inner join category on (film_category.category_id = category.category_id)
+group by name
+order by sum(amount) desc limit 5;
+
+#8b
+select * from top_genres;
+
+#8c
+drop view top_genres;
 
 
-    
 
 
 
